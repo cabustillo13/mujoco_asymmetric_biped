@@ -119,8 +119,8 @@ if __name__ == "__main__":
         ent_coef=0.005
     )
 
-    print("Comenzando entrenamiento robusto (100,000 pasos)...")
-    model.learn(total_timesteps=100_000)
+    print("Comenzando entrenamiento robusto (1,000,000 pasos)...")
+    model.learn(total_timesteps=1_000_000)
 
     model.save("asymmetric_biped_stable")
     env.save("vec_normalize.pkl")

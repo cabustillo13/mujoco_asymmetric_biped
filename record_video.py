@@ -7,7 +7,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from main import AsymmetricBipedEnv
 
 def main():
-    print("Preparando entorno para grabación con cámara de seguimiento...")
+    print("Preparando entorno para grabación extendida...")
     
     env_raw = AsymmetricBipedEnv(render_mode=None)
     env = DummyVecEnv([lambda: env_raw])
@@ -15,7 +15,7 @@ def main():
     try:
         env = VecNormalize.load("vec_normalize.pkl", env)
     except FileNotFoundError:
-        print("Error: No se encontró 'vec_normalize.pkl'. Ejecuta main.py primero.")
+        print("Error: No se encontró 'vec_normalize.pkl'. Entrena el modelo primero.")
         return
     
     env.training = False
@@ -27,27 +27,26 @@ def main():
         print("Error: No se encontró el modelo entrenado.")
         return
 
-    # Resolución ajustada al búfer por defecto de MuJoCo (640x480)
     width, height = 640, 480
     renderer = mujoco.Renderer(env_raw.model, height=height, width=width)
 
     obs = env.reset()
     frames = []
     
-    print("Grabando episodio con primer plano...")
-    max_steps = 500
+    # Aumentamos los pasos a 1500 (aprox. 30 segundos de video fluido)
+    max_steps = 1500
+    print(f"Grabando video extendido de {max_steps} pasos...")
     
-    # Configuración de la cámara de seguimiento
     cam = mujoco.MjvCamera()
     cam.azimuth = 90      # Ángulo lateral
     cam.elevation = -15   # Ligeramente inclinada hacia abajo
-    cam.distance = 2.5    # Distancia de zoom
+    cam.distance = 2.8    # Distancia de zoom
 
     for step_idx in range(max_steps):
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, terminated, info = env.step(action)
         
-        # Obtener la posición actual del torso del robot
+        # Cámara de seguimiento anclada al torso
         torso_pos = env_raw.data.body("torso").xpos
         
         # Mover el punto de mira de la cámara junto con el robot
@@ -56,17 +55,15 @@ def main():
         cam.lookat[2] = torso_pos[2]
         
         renderer.update_scene(env_raw.data, camera=cam)
+        frames.append(renderer.render())
         
-        img = renderer.render()
-        frames.append(img)
-        
+        # Si se cae, en lugar de romper el script, reiniciamos el entorno para que siga la secuencia
         if terminated[0]:
-            print(f"El robot se cayó en el paso {step_idx}.")
-            break
+            obs = env.reset()
 
-    print(f"Guardando video con primer plano en 'asymmetric_runner_close.mp4'...")
-    imageio.mimsave("asymmetric_runner_close.mp4", frames, fps=10)
-    print("¡Video generado con éxito! El sujeto ahora está en primer plano.")
+    print(f"Guardando video largo en 'asymmetric_runner_long.mp4'...")
+    imageio.mimsave("asymmetric_runner_long.mp4", frames, fps=50)
+    print("¡Video extendido generado con éxito!")
 
 if __name__ == "__main__":
     main()
