@@ -16,17 +16,19 @@ XML_MODEL = """
   </visual>
 
   <asset>
-    <!-- Textura de cielo degradada limpia -->
+    <!-- Textura de cielo degradada -->
     <texture name="sky" type="skybox" builtin="gradient" rgb1="0.4 0.6 0.8" rgb2="0.1 0.2 0.3" width="512" height="512"/>
-    <!-- Material de color verde liso unificado (sin grilla ni cuadros que generen ruido) -->
-    <texture name="green_ground" type="2d" builtin="flat" rgb1="0.2 0.55 0.3" width="512" height="512"/>
-    <material name="grass" texture="green_ground" reflectance="0.05"/>
+    
+    <!-- Cuadrícula verde ajedrez limpia (sin bordes oscuros de aliasing) -->
+    <texture name="grid" type="2d" builtin="checker" rgb1="0.22 0.58 0.32" rgb2="0.18 0.48 0.26" width="512" height="512"/>
+    <material name="grass" texture="grid" texrepeat="15 15" reflectance="0.05"/>
   </asset>
 
   <worldbody>
+    <!-- Luz sin sombras direccionales agresivas en el horizonte -->
     <light pos="0 0 5" dir="0 0 -1" directional="true" castshadow="false"/>
     
-    <!-- Suelo con tamaño controlado para evitar problemas de renderizado -->
+    <!-- Suelo con tamaño equilibrado (20x20) y la textura de ajedrez -->
     <geom name="floor" type="box" size="20 20 0.1" pos="0 0 -0.1" material="grass" condim="3"/>
     
     <!-- Torso Principal (Gris Metálico) -->
