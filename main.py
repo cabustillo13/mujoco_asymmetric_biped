@@ -9,29 +9,46 @@ XML_MODEL = """
 <mujoco model="asymmetric_biped">
   <compiler inertiafromgeom="true"/>
   <option gravity="0 0 -9.81" timestep="0.002"/>
+  
+  <visual>
+    <headlight ambient="0.6 0.6 0.6" diffuse="0.8 0.8 0.8" specular="0.1 0.1 0.1"/>
+    <rgba fog="0.15 0.2 0.25 1"/>
+  </visual>
+
+  <asset>
+    <!-- Textura de cielo degradada limpia -->
+    <texture name="sky" type="skybox" builtin="gradient" rgb1="0.4 0.6 0.8" rgb2="0.1 0.2 0.3" width="512" height="512"/>
+    <!-- Material de color verde liso unificado (sin grilla ni cuadros que generen ruido) -->
+    <texture name="green_ground" type="2d" builtin="flat" rgb1="0.2 0.55 0.3" width="512" height="512"/>
+    <material name="grass" texture="green_ground" reflectance="0.05"/>
+  </asset>
+
   <worldbody>
-    <light pos="0 0 3"/>
-    <geom name="floor" type="box" size="20 20 0.1" pos="0 0 -0.1" rgba="0.8 0.9 0.8 1"/>
+    <light pos="0 0 5" dir="0 0 -1" directional="true" castshadow="false"/>
     
+    <!-- Suelo con tamaño controlado para evitar problemas de renderizado -->
+    <geom name="floor" type="box" size="20 20 0.1" pos="0 0 -0.1" material="grass" condim="3"/>
+    
+    <!-- Torso Principal (Gris Metálico) -->
     <body name="torso" pos="0 0 1.2">
       <freejoint/>
-      <geom name="torso_geom" type="capsule" size="0.08 0.2" rgba="0.9 0.4 0.4 1"/>
+      <geom name="torso_geom" type="capsule" size="0.08 0.2" rgba="0.8 0.8 0.85 1" friction="0.9"/>
       
-      <!-- Pierna Izquierda -->
+      <!-- Pierna Izquierda (Azul brillante) -->
       <body name="left_thigh" pos="0 0.12 -0.2">
         <joint name="left_hip" type="hinge" axis="0 1 0" range="-30 45" damping="5.0" armature="0.01"/>
-        <geom name="left_thigh_geom" type="capsule" size="0.05 0.15" pos="0 0 -0.15" rgba="0.2 0.5 0.8 1"/>
+        <geom name="left_thigh_geom" type="capsule" size="0.05 0.15" pos="0 0 -0.15" rgba="0.1 0.4 0.9 1"/>
         
         <body name="left_shin" pos="0 0 -0.3">
           <joint name="left_knee" type="hinge" axis="0 1 0" range="0 70" damping="5.0" armature="0.01"/>
-          <geom name="left_shin_geom" type="capsule" size="0.04 0.15" pos="0 0 -0.15" rgba="0.2 0.7 0.9 1"/>
+          <geom name="left_shin_geom" type="capsule" size="0.04 0.15" pos="0 0 -0.15" rgba="0.2 0.7 1.0 1"/>
         </body>
       </body>
       
-      <!-- Pierna Derecha Amputada -->
+      <!-- Pierna Derecha Amputada / Muñón (Naranja de alto contraste) -->
       <body name="right_thigh" pos="0 -0.12 -0.2">
         <joint name="right_hip" type="hinge" axis="0 1 0" range="-30 45" damping="5.0" armature="0.01"/>
-        <geom name="right_thigh_geom" type="capsule" size="0.05 0.15" pos="0 0 -0.15" rgba="0.8 0.5 0.2 1"/>
+        <geom name="right_thigh_geom" type="capsule" size="0.05 0.15" pos="0 0 -0.15" rgba="0.9 0.4 0.1 1"/>
       </body>
       
     </body>

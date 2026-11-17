@@ -37,10 +37,11 @@ def main():
     max_steps = 1500
     print(f"Grabando video extendido de {max_steps} pasos...")
     
+    # Configuración de la cámara de seguimiento con distancia óptima
     cam = mujoco.MjvCamera()
     cam.azimuth = 90      # Ángulo lateral
     cam.elevation = -15   # Ligeramente inclinada hacia abajo
-    cam.distance = 2.8    # Distancia de zoom
+    cam.distance = 3.8    # Distancia perfecta para ver todo el cuerpo
 
     for step_idx in range(max_steps):
         action, _ = model.predict(obs, deterministic=True)
